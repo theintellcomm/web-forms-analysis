@@ -7,7 +7,7 @@
  * Based on http://stuartsierra.com/2008/04/24/a-million-little-files.
  */
 
-package edu.nyupoly.webformsanalysis;
+package edu.poly.formsanalysis;
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.apache.tools.tar.TarEntry;
