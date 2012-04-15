@@ -1,4 +1,4 @@
-package edu.nyupoly.webformsanalysis;
+package edu.poly.formsanalysis;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
