@@ -31,8 +31,15 @@ import java.util.zip.GZIPInputStream;
  * @author Bhaktavatsalam Nallanthighal
  */
 public class TarToTextFile {
-
+	
+	public static Long numSuccess;
+	
+	public static Long numTotal;
+	
     public static void execute(File inputFile) throws Exception {
+    	numSuccess = 0L;
+    	numTotal = 0L;
+    	
         TarInputStream input = null;
         FileWriter output = null;
         try {
@@ -59,10 +66,11 @@ public class TarToTextFile {
                 
                 if(url.startsWith("http://")) {
                 	output.append(filename + "\t" + dataStr + "\n");
-                	//System.out.println(filename);
+                	++numSuccess;
                 } else {
                 	System.err.println(filename);
                 }
+                ++numTotal;
             }
         } finally {
             if (input != null) {
