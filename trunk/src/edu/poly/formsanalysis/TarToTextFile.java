@@ -112,8 +112,4 @@ public class TarToTextFile {
 
         return bytes;
     }
-
-    public static void main(String[] args) throws Exception {
-    	TarToTextFile.execute(new File(args[0]));
-    }
 }
