@@ -48,8 +48,10 @@ public class FormElementsCount {
 			
 			try {
 				kit.read(reader, doc, 0);
-			} catch (BadLocationException e) {
-				
+			} catch (Exception e) {
+				return;
+			} catch(Throwable t) {
+				return;
 			}
 			
 			HTMLDocument.Iterator inputElementsIterator = doc.getIterator(HTML.Tag.INPUT);
