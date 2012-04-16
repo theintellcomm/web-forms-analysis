@@ -15,25 +15,24 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
 
-public class WordCount {
+public class EntriesPerDomain {
 	
-	public static final String HADOOP_TASK_NAME = "WordCount";
+	public static final String HADOOP_TASK_NAME = "EntriesPerDomain";
 
 
 	public static class Map extends
-			Mapper<Object, Text, Text, IntWritable> {
+			Mapper<Text, Text, Text, IntWritable> {
 
 		private final static IntWritable one = new IntWritable(1);
 
 		private Text word = new Text();
 
-		public void map(Object key, Text value, Context context)
+		public void map(Text key, Text value, Context context)
 				throws IOException, InterruptedException {
-			StringTokenizer itr = new StringTokenizer(value.toString());
-			while (itr.hasMoreTokens()) {
-				word.set(itr.nextToken());
-				context.write(word, one);
-			}
+			String domain = key.toString();
+			domain = domain.substring(0, domain.indexOf("::"));
+			word.set(domain);
+			context.write(word, one);
 		}
 	}
 
@@ -57,7 +56,7 @@ public class WordCount {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		
-		job.setJarByClass(WordCount.class);
+		job.setJarByClass(EntriesPerDomain.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);
