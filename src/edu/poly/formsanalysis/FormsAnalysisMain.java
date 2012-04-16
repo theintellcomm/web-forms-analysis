@@ -34,6 +34,7 @@ public class FormsAnalysisMain {
 			System.out.println("hadoop tasks available:\n");
 			System.out.println("  WordCount: edu.poly.formsanalysis.hadoop.WordCount");
 			System.out.println("  EntriesPerDomain: edu.poly.formsanalysis.hadoop.EntriesPerDomain");
+			System.out.println("  FormElementsCount: edu.poly.formsanalysis.hadoop.FormElementsCount");
 			System.out.println("\n=========================================================================");
 		}
 	}
