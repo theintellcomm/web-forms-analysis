@@ -56,7 +56,6 @@ public class CharCount {
 			System.exit(2);
 		}
 		Job job = new Job(conf, "word count");
-		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setJarByClass(CharCount.class);
 		job.setMapperClass(TokenizerMapper.class);
 		job.setCombinerClass(IntSumReducer.class);
