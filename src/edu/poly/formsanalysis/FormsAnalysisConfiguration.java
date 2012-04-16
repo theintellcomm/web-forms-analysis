@@ -5,5 +5,7 @@ public class FormsAnalysisConfiguration {
 	public static final String INPUT = "hdfs://hadoop01.poly.edu:8020/forms_analysis/input/domains_100k.tar_kvp.txt";
 	
 	public static final String OUTPUT = "hdfs://hadoop01.poly.edu:8020/forms_analysis/output";
+	
+	public static final String FORM_ELEMENTS_COUNT = "FORM_ELEMENTS_COUNT";
 
 }

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.parser.ParserDelegator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -18,7 +20,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
-import edu.poly.formsanalysis.HTMLFormParser;
 
 public class FormElementsCount {
 	
@@ -28,9 +29,9 @@ public class FormElementsCount {
 	public static class Map extends
 			Mapper<Object, Text, Text, IntWritable> {
 
-		private final static IntWritable one = new IntWritable(1);
-
 		private Text word = new Text();
+		
+		private IntWritable numFormElements = new IntWritable(0);
 
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -38,18 +39,52 @@ public class FormElementsCount {
 			String domain = rec.substring(0, rec.indexOf("::"));
 			String url = rec.substring(rec.indexOf("::") + "::".length(), rec.indexOf("\t"));
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
+
+			Integer _numFormElements = 0;
 			
-			HTMLFormParser formParser = new HTMLFormParser();
-			
+			HTMLEditorKit kit = new HTMLEditorKit();
+			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
 			Reader reader = new StringReader(formHTML);
-			HTMLEditorKit.Parser parser = new ParserDelegator();
-			parser.parse(reader, formParser, true);
+			
+			try {
+				kit.read(reader, doc, 0);
+			} catch (BadLocationException e) {
+				
+			}
+			
+			HTMLDocument.Iterator inputElementsIterator = doc.getIterator(HTML.Tag.INPUT);
+			while(inputElementsIterator.isValid()) {
+				++_numFormElements;
+				inputElementsIterator.next();
+			}
+			
+			HTMLDocument.Iterator selectElementsIterator = doc.getIterator(HTML.Tag.SELECT);
+			while(selectElementsIterator.isValid()) {
+				++_numFormElements;
+				selectElementsIterator.next();
+			}
+
+			HTMLDocument.Iterator textareaElementsIterator = doc.getIterator(HTML.Tag.TEXTAREA);
+			while(textareaElementsIterator.isValid()) {
+				++_numFormElements;
+				textareaElementsIterator.next();
+			}
+			
 			reader.close();
 			
-			
-			
+			numFormElements.set(_numFormElements);
+
+			// Write per form count
+			word.set(url);
+			context.write(word, numFormElements);
+
+			// Write per domain count
 			word.set(domain);
-			context.write(word, one);
+			context.write(word, numFormElements);
+			
+			// Write count for entire dataset
+			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
+			context.write(word, numFormElements);
 		}
 	}
 
