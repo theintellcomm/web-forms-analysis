@@ -1,6 +1,11 @@
 package edu.poly.formsanalysis.hadoop;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.parser.ParserDelegator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -13,12 +18,13 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
+import edu.poly.formsanalysis.HTMLFormParser;
 
-public class EntriesPerDomain {
+public class FormElementsCount {
 	
-	public static final String HADOOP_TASK_NAME = "EntriesPerDomain";
+	public static final String HADOOP_TASK_NAME = "FormElementsCount";
 
-
+	
 	public static class Map extends
 			Mapper<Object, Text, Text, IntWritable> {
 
@@ -29,7 +35,20 @@ public class EntriesPerDomain {
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String rec = value.toString();
-			word.set(rec.substring(0, rec.indexOf("::")));
+			String domain = rec.substring(0, rec.indexOf("::"));
+			String url = rec.substring(rec.indexOf("::") + "::".length(), rec.indexOf("\t"));
+			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
+			
+			HTMLFormParser formParser = new HTMLFormParser();
+			
+			Reader reader = new StringReader(formHTML);
+			HTMLEditorKit.Parser parser = new ParserDelegator();
+			parser.parse(reader, formParser, true);
+			reader.close();
+			
+			
+			
+			word.set(domain);
 			context.write(word, one);
 		}
 	}
@@ -49,12 +68,13 @@ public class EntriesPerDomain {
 			context.write(key, result);
 		}
 	}
+	
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		
-		job.setJarByClass(EntriesPerDomain.class);
+		job.setJarByClass(FormElementsCount.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);
