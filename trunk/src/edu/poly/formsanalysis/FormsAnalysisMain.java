@@ -33,7 +33,7 @@ public class FormsAnalysisMain {
 			System.out.println("can specify different ones for testing purposes. Here is a list of all the");
 			System.out.println("hadoop tasks available:\n");
 			System.out.println("  WordCount: edu.poly.formsanalysis.hadoop.WordCount");
-			System.out.println("  WordCount: edu.poly.formsanalysis.hadoop.WordCount");
+			System.out.println("  EntriesPerDomain: edu.poly.formsanalysis.hadoop.EntriesPerDomain");
 			System.out.println("\n=========================================================================");
 		}
 	}
