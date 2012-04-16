@@ -11,12 +11,16 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class CharCount {
+import edu.poly.formsanalysis.FormsAnalysisConfiguration;
 
-	public static class TokenizerMapper extends
+public class WordCount {
+	
+	public static final String HADOOP_TASK_NAME = "WordCount";
+
+
+	public static class WordCountMapper extends
 			Mapper<Object, Text, Text, IntWritable> {
 
 		private final static IntWritable one = new IntWritable(1);
@@ -33,7 +37,7 @@ public class CharCount {
 		}
 	}
 
-	public static class IntSumReducer extends
+	public static class WordCountReducer extends
 			Reducer<Text, IntWritable, Text, IntWritable> {
 		
 		private IntWritable result = new IntWritable();
@@ -51,19 +55,20 @@ public class CharCount {
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		if (args.length != 2) {
-			System.err.println("Usage: wordcount <in> <out>");
-			System.exit(2);
-		}
-		Job job = new Job(conf, "word count");
-		job.setJarByClass(CharCount.class);
-		job.setMapperClass(TokenizerMapper.class);
-		job.setCombinerClass(IntSumReducer.class);
-		job.setReducerClass(IntSumReducer.class);
+		Job job = new Job(conf, HADOOP_TASK_NAME);
+		
+		job.setJarByClass(WordCount.class);
+		job.setMapperClass(WordCountMapper.class);
+
+		job.setCombinerClass(WordCountReducer.class);
+		job.setReducerClass(WordCountReducer.class);
+		
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
-		FileInputFormat.addInputPath(job, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		
+		FileInputFormat.addInputPath(job, new Path(args.length>0 ? FormsAnalysisConfiguration.INPUT : args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args.length>1 ? FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME : args[1]));
+		
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
 }
