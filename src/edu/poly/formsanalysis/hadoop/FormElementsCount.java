@@ -3,8 +3,6 @@ package edu.poly.formsanalysis.hadoop;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-
-import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
