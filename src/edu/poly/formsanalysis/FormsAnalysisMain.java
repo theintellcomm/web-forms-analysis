@@ -32,9 +32,21 @@ public class FormsAnalysisMain {
 			System.out.println("hdfs://hadoop01.poly.edu:8020/forms_analysis/ are automatically used, but you");
 			System.out.println("can specify different ones for testing purposes. Here is a list of all the");
 			System.out.println("hadoop tasks available:\n");
-			System.out.println("  WordCount: edu.poly.formsanalysis.hadoop.WordCount");
 			System.out.println("  EntriesPerDomain: edu.poly.formsanalysis.hadoop.EntriesPerDomain");
 			System.out.println("  FormElementsCount: edu.poly.formsanalysis.hadoop.FormElementsCount");
+			System.out.println("  TextBoxesCount: edu.poly.formsanalysis.hadoop.TextBoxesCount");
+			System.out.println("  PasswordBoxesCount: edu.poly.formsanalysis.hadoop.PasswordBoxesCount");
+			System.out.println("  TextAreasCount: edu.poly.formsanalysis.hadoop.TextAreasCount");
+			System.out.println("  ListBoxesCount: edu.poly.formsanalysis.hadoop.ListBoxesCount");
+			System.out.println("  CheckBoxesCount: edu.poly.formsanalysis.hadoop.CheckBoxesCount");
+			System.out.println("  RadioButtonsCount: edu.poly.formsanalysis.hadoop.RadioButtonsCount");
+			System.out.println("  HiddenElementsCount: edu.poly.formsanalysis.hadoop.HiddenElementsCount");
+			System.out.println("  RegularButtonsCount: edu.poly.formsanalysis.hadoop.RegularButtonsCount");
+			System.out.println("  SubmitButtonsCount: edu.poly.formsanalysis.hadoop.SubmitButtonsCount");
+			System.out.println("  ResetButtonsCount: edu.poly.formsanalysis.hadoop.ResetButtonsCount");
+			System.out.println("  FormMethodTypeCount: edu.poly.formsanalysis.hadoop.FormMethodTypeCount");
+			System.out.println("\n");
+			System.out.println("  ListBoxOptionsCount: edu.poly.formsanalysis.hadoop.ListBoxOptionsCount");
 			System.out.println("\n=========================================================================");
 		}
 	}

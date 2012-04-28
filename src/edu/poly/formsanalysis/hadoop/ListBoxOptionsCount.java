@@ -56,9 +56,6 @@ public class ListBoxOptionsCount {
 			
 			HTMLDocument.Iterator inputElementsIterator = doc.getIterator(HTML.Tag.SELECT);
 			while(inputElementsIterator.isValid()) {
-				HTMLSelectElement el =
-					;
-				javax.swing.text.html.HTML.
 				++_numListBoxOptions;
 				inputElementsIterator.next();
 			}
