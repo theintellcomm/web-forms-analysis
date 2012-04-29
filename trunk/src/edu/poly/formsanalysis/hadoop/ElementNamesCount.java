@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
+import javax.swing.text.Element;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -20,9 +21,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
 
-public class HiddenElementsCount {
+public class ElementNamesCount {
 	
-	public static final String HADOOP_TASK_NAME = "HiddenElementsCount";
+	public static final String HADOOP_TASK_NAME = "ElementNamesCount";
 
 	
 	public static class Map extends
@@ -30,8 +31,6 @@ public class HiddenElementsCount {
 
 		private Text word = new Text();
 		
-		private IntWritable numHiddenElements = new IntWritable(0);
-
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String rec = value.toString();
@@ -39,8 +38,6 @@ public class HiddenElementsCount {
 			String url = rec.substring(rec.indexOf("::") + "::".length(), rec.indexOf("\t"));
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
 
-			Integer _numHiddenElements = 0;
-			
 			HTMLEditorKit kit = new HTMLEditorKit();
 			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
 			Reader reader = new StringReader(formHTML);
@@ -55,33 +52,44 @@ public class HiddenElementsCount {
 			
 			HTMLDocument.Iterator inputElementsIterator = doc.getIterator(HTML.Tag.INPUT);
 			while(inputElementsIterator.isValid()) {
-				String type = (String) inputElementsIterator.getAttributes().getAttribute(HTML.Attribute.TYPE);
-				// If type is empty or "text"
-				if(type!=null && type.equalsIgnoreCase("hidden")) {
-					++_numHiddenElements;
+				String name = (String) inputElementsIterator.getAttributes().getAttribute(HTML.Attribute.NAME);
+				if(name!=null && !name.isEmpty()) {
+					word.set(name);
+					context.write(word, new IntWritable(1));
+
+					word.set(domain + ":" + name);
+					context.write(word, new IntWritable(1));
 				}
 				inputElementsIterator.next();
 			}
 			
+			HTMLDocument.Iterator selectElementsIterator = doc.getIterator(HTML.Tag.SELECT);
+			while(selectElementsIterator.isValid()) {
+				String name = (String) selectElementsIterator.getAttributes().getAttribute(HTML.Attribute.NAME);
+				if(name!=null && !name.isEmpty()) {
+					word.set(name);
+					context.write(word, new IntWritable(1));
+
+					word.set(domain + ":" + name);
+					context.write(word, new IntWritable(1));
+				}
+				selectElementsIterator.next();
+			}
+
+			HTMLDocument.Iterator textareaElementsIterator = doc.getIterator(HTML.Tag.TEXTAREA);
+			while(textareaElementsIterator.isValid()) {
+				String name = (String) textareaElementsIterator.getAttributes().getAttribute(HTML.Attribute.NAME);
+				if(name!=null && !name.isEmpty()) {
+					word.set(name);
+					context.write(word, new IntWritable(1));
+
+					word.set(domain + ":" + name);
+					context.write(word, new IntWritable(1));
+				}
+				textareaElementsIterator.next();
+			}
+			
 			reader.close();
-			
-			numHiddenElements.set(_numHiddenElements);
-
-			// Write per form count
-			word.set(url);
-			context.write(word, numHiddenElements);
-
-			// Write per domain count
-			word.set(domain);
-			context.write(word, numHiddenElements);
-			
-			// Write count for entire dataset
-			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
-			context.write(word, numHiddenElements);
-			
-			// Write #urls per each count
-			word.set(numHiddenElements.toString());
-			context.write(word, new IntWritable(1));
 		}
 	}
 
@@ -107,7 +115,7 @@ public class HiddenElementsCount {
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		job.setJobName(HADOOP_TASK_NAME);
 		
-		job.setJarByClass(HiddenElementsCount.class);
+		job.setJarByClass(ElementNamesCount.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);

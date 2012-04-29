@@ -53,6 +53,7 @@ public class EntriesPerDomain {
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
+		job.setJobName(HADOOP_TASK_NAME);
 		
 		job.setJarByClass(EntriesPerDomain.class);
 		job.setMapperClass(Map.class);
@@ -61,9 +62,9 @@ public class EntriesPerDomain {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		
-		FileInputFormat.addInputPath(job, new Path(args.length>0 ? args[0] : FormsAnalysisConfiguration.INPUT));
-		FileOutputFormat.setOutputPath(job, new Path(args.length>1 ? args[1] : FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
+		FileInputFormat.addInputPath(job, new Path(FormsAnalysisConfiguration.INPUT));
+		FileOutputFormat.setOutputPath(job, new Path(FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
 		
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		job.waitForCompletion(true);
 	}
 }

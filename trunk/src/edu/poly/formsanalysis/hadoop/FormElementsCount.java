@@ -72,6 +72,11 @@ public class FormElementsCount {
 			
 			reader.close();
 			
+			if(_numFormElements>100) {
+				word.set("---" + url + "::" + formHTML);
+				context.write(word, numFormElements);
+			}
+			
 			numFormElements.set(_numFormElements);
 
 			// Write per form count
@@ -85,6 +90,10 @@ public class FormElementsCount {
 			// Write count for entire dataset
 			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
 			context.write(word, numFormElements);
+			
+			// Write #urls per each count
+			word.set(numFormElements.toString());
+			context.write(word, new IntWritable(1));
 		}
 	}
 
@@ -108,6 +117,7 @@ public class FormElementsCount {
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
+		job.setJobName(HADOOP_TASK_NAME);
 		
 		job.setJarByClass(FormElementsCount.class);
 		job.setMapperClass(Map.class);
@@ -116,9 +126,9 @@ public class FormElementsCount {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		
-		FileInputFormat.addInputPath(job, new Path(args.length>0 ? args[0] : FormsAnalysisConfiguration.INPUT));
-		FileOutputFormat.setOutputPath(job, new Path(args.length>1 ? args[1] : FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
+		FileInputFormat.addInputPath(job, new Path(FormsAnalysisConfiguration.INPUT));
+		FileOutputFormat.setOutputPath(job, new Path(FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
 		
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		job.waitForCompletion(true);
 	}
 }

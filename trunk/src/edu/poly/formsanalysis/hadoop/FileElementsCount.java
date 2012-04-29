@@ -20,9 +20,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
 
-public class HiddenElementsCount {
+public class FileElementsCount {
 	
-	public static final String HADOOP_TASK_NAME = "HiddenElementsCount";
+	public static final String HADOOP_TASK_NAME = "FileElementsCount";
 
 	
 	public static class Map extends
@@ -30,7 +30,7 @@ public class HiddenElementsCount {
 
 		private Text word = new Text();
 		
-		private IntWritable numHiddenElements = new IntWritable(0);
+		private IntWritable numFileElements = new IntWritable(0);
 
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -39,7 +39,7 @@ public class HiddenElementsCount {
 			String url = rec.substring(rec.indexOf("::") + "::".length(), rec.indexOf("\t"));
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
 
-			Integer _numHiddenElements = 0;
+			Integer _numFileElements = 0;
 			
 			HTMLEditorKit kit = new HTMLEditorKit();
 			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
@@ -56,31 +56,31 @@ public class HiddenElementsCount {
 			HTMLDocument.Iterator inputElementsIterator = doc.getIterator(HTML.Tag.INPUT);
 			while(inputElementsIterator.isValid()) {
 				String type = (String) inputElementsIterator.getAttributes().getAttribute(HTML.Attribute.TYPE);
-				// If type is empty or "text"
-				if(type!=null && type.equalsIgnoreCase("hidden")) {
-					++_numHiddenElements;
+				// If type "radio"
+				if(type!=null && type.equalsIgnoreCase("file")) {
+					++_numFileElements;
 				}
 				inputElementsIterator.next();
 			}
 			
 			reader.close();
 			
-			numHiddenElements.set(_numHiddenElements);
+			numFileElements.set(_numFileElements);
 
 			// Write per form count
 			word.set(url);
-			context.write(word, numHiddenElements);
+			context.write(word, numFileElements);
 
 			// Write per domain count
 			word.set(domain);
-			context.write(word, numHiddenElements);
+			context.write(word, numFileElements);
 			
 			// Write count for entire dataset
 			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
-			context.write(word, numHiddenElements);
+			context.write(word, numFileElements);
 			
 			// Write #urls per each count
-			word.set(numHiddenElements.toString());
+			word.set(numFileElements.toString());
 			context.write(word, new IntWritable(1));
 		}
 	}
@@ -107,7 +107,7 @@ public class HiddenElementsCount {
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		job.setJobName(HADOOP_TASK_NAME);
 		
-		job.setJarByClass(HiddenElementsCount.class);
+		job.setJarByClass(FileElementsCount.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);
