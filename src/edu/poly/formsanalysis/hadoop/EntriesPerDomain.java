@@ -22,15 +22,13 @@ public class EntriesPerDomain {
 	public static class Map extends
 			Mapper<Object, Text, Text, IntWritable> {
 
-		private final static IntWritable one = new IntWritable(1);
-
 		private Text word = new Text();
 
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String rec = value.toString();
 			word.set(rec.substring(0, rec.indexOf("::")));
-			context.write(word, one);
+			context.write(word, FormsAnalysisConfiguration.ONE);
 		}
 	}
 

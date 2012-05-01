@@ -65,7 +65,7 @@ public class FileElementsCount {
 			
 			reader.close();
 			
-			numFileElements.set(_numFileElements);
+			numFileElements.set(_numFileElements); 
 
 			// Write per form count
 			word.set(url);
@@ -76,7 +76,7 @@ public class FileElementsCount {
 			context.write(word, numFileElements);
 			
 			// Write count for entire dataset
-			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
+			word.set(FormsAnalysisConfiguration.DATASET_STRING);
 			context.write(word, numFileElements);
 			
 			// Write #urls per each count
