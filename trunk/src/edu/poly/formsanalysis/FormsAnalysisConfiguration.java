@@ -8,14 +8,10 @@ public class FormsAnalysisConfiguration {
 	
 	public static final String OUTPUT = "hdfs://hadoop01.poly.edu:8020/forms_analysis/output";
 	
-	public static final String DATASET_STRING = "--DEEPPEEP_DATASET--";
+	public static final String DATASET_STRING = "DEEPPEEP";
 	
 	public static final IntWritable ONE = new IntWritable(1);
 	
 	public static final String ALL_ELEMENTS = "ALL";
-	
-	public static final String TEXT_BOX = "TEXT_BOX";
-	
-	
 
 }

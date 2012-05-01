@@ -1,16 +1,8 @@
 package edu.poly.formsanalysis;
 
 import java.io.File;
-import java.io.Reader;
-import java.io.StringReader;
 
-import javax.swing.text.AttributeSet;
-import javax.swing.text.Element;
-import javax.swing.text.ElementIterator;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-
+import edu.poly.formsanalysis.hadoop.ElementNamesCount;
 import edu.poly.formsanalysis.hadoop.EntriesPerDomain;
 import edu.poly.formsanalysis.hadoop.FormElementsCount;
 import edu.poly.formsanalysis.hadoop.FormMethodTypeCount;
@@ -21,7 +13,7 @@ import edu.poly.formsanalysis.hadoop.FormMethodTypeCount;
  */
 public class FormsAnalysisMain {
 
-	public static String sampleFormHTML = "<html><form method='post'></form><input type='text' /><select><option></option></select></html>";
+//	public static String sampleFormHTML = "<html><form method='post'></form><input type='text' name='asd' /><select><option></option><option></option></select></html>";
 
 	public static void main(String args[]) throws Exception {
 		if (args.length == 1) {
@@ -97,6 +89,7 @@ public class FormsAnalysisMain {
 						+ TarToTextFile.numTotal);
 			}
 		} else {
+/*
 			HTMLEditorKit kit = new HTMLEditorKit();
 			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
 			Reader reader = new StringReader(sampleFormHTML);
@@ -116,31 +109,22 @@ public class FormsAnalysisMain {
 				if (attributes != null) {
 					Object name = attributes
 							.getAttribute(AttributeSet.NameAttribute);
-					if (name == HTML.Tag.INPUT) {
-						String type = (String) attributes.getAttribute(HTML.Attribute.TYPE);
-						// If type is empty or "text"
-						if(type!=null && (type.isEmpty() || type.equalsIgnoreCase("text"))) {
-							System.out.println(type);
-						}
-						
-						System.out.println("AAA");
-					} else if(name == HTML.Tag.SELECT
+					if (name == HTML.Tag.INPUT || name == HTML.Tag.SELECT
 							|| name == HTML.Tag.TEXTAREA) {
-						System.out.println(name);
+						System.out.println(attributes.getAttribute(HTML.Attribute.NAME));
 					}
 				}
 			}
 
 			reader.close();
-
-			// ElementNamesCount.main(args);
+*/
 			// ListBoxOptionsCount.main(args);
 			// CheckBoxesOptionsCount.main(args);
 
-			 FormMethodTypeCount.main(args);
-			 EntriesPerDomain.main(args);
-			 FormElementsCount.main(args);
-
+			EntriesPerDomain.main(args);
+			FormMethodTypeCount.main(args);
+			FormElementsCount.main(args);
+			ElementNamesCount.main(args);
 		}
 	}
 
