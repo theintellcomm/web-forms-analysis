@@ -68,15 +68,15 @@ public class CheckBoxesCount {
 			numCheckBoxes.set(_numCheckBoxes);
 
 			// Write per form count
-			word.set(url);
-			context.write(word, numCheckBoxes);
+//			word.set(url);
+//			context.write(word, numCheckBoxes);
 
-			// Write per domain count
-			word.set(domain);
+			// Write count for entire dataset
+			word.set(FormsAnalysisConfiguration.DATASET_STRING);
 			context.write(word, numCheckBoxes);
 			
-			// Write count for entire dataset
-			word.set(FormsAnalysisConfiguration.FORM_ELEMENTS_COUNT);
+			// Write per domain count
+			word.set(domain);
 			context.write(word, numCheckBoxes);
 			
 			// Write #urls per each count
