@@ -33,8 +33,6 @@ public class FormElementsCount {
 
 		private Text word = new Text();
 
-		private IntWritable numFormElements = new IntWritable(0);
-
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String rec = value.toString();
@@ -43,8 +41,8 @@ public class FormElementsCount {
 					rec.indexOf("\t"));
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
 
-			Integer _numFormElements = 0;
 			Hashtable<String, Integer> formElementCounts = new Hashtable<String, Integer>();
+			formElementCounts.put(FormsAnalysisConfiguration.ALL_ELEMENTS, 0);
 
 			HTMLEditorKit kit = new HTMLEditorKit();
 			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
@@ -65,19 +63,39 @@ public class FormElementsCount {
 				if (attributes != null) {
 					Object name = attributes
 							.getAttribute(AttributeSet.NameAttribute);
-					if (name == HTML.Tag.INPUT) {
-						String type = (String) attributes
-								.getAttribute(HTML.Attribute.TYPE);
+					if (name == HTML.Tag.INPUT || name == HTML.Tag.SELECT
+							|| name == HTML.Tag.TEXTAREA) {
+						String type = null;
+						if (name == HTML.Tag.INPUT) {
+							type = (String) attributes
+									.getAttribute(HTML.Attribute.TYPE);
+							if (type == null || type.isEmpty()) {
+								type = "TEXT";
+							}
+						} else if (name == HTML.Tag.SELECT) {
+							type = "SELECT";
+						} else if (name == HTML.Tag.TEXTAREA) {
+							type = "TEXTAREA";
+						}
+						type = type.trim().toUpperCase();
 
-						type = type != null ? type.trim().toUpperCase()
-								: "TEXT";
+						// Write total elements count for entire dataset
+						word.set(FormsAnalysisConfiguration.DATASET_STRING
+								+ "::"
+								+ FormsAnalysisConfiguration.ALL_ELEMENTS);
+						context.write(word, FormsAnalysisConfiguration.ONE);
 
-						// Write count for entire dataset
+						// Write count per each element type for entire dataset
 						word.set(FormsAnalysisConfiguration.DATASET_STRING
 								+ "::" + type);
 						context.write(word, FormsAnalysisConfiguration.ONE);
 
-						// Write per domain count
+						// Write total elements count for each domain
+						word.set(domain + "::"
+								+ FormsAnalysisConfiguration.ALL_ELEMENTS);
+						context.write(word, FormsAnalysisConfiguration.ONE);
+
+						// Write count per each element type for entire dataset
 						word.set(domain + "::" + type);
 						context.write(word, FormsAnalysisConfiguration.ONE);
 
@@ -88,43 +106,17 @@ public class FormElementsCount {
 							formElementCounts.put(type, 1);
 						}
 
-						// Update all form elements count
-						++_numFormElements;
-					} else if (name == HTML.Tag.SELECT
-							|| name == HTML.Tag.TEXTAREA) {
-						// Update all form elements count
-						++_numFormElements;
+						formElementCounts
+								.put(FormsAnalysisConfiguration.ALL_ELEMENTS,
+										formElementCounts
+												.get(FormsAnalysisConfiguration.ALL_ELEMENTS) + 1);
 					}
 				}
 			}
 
 			reader.close();
 
-			numFormElements.set(_numFormElements);
-
-			// Write count for entire dataset
-			word.set(FormsAnalysisConfiguration.DATASET_STRING + "::"
-					+ FormsAnalysisConfiguration.ALL_ELEMENTS);
-			context.write(word, numFormElements);
-
-			// Write per domain count
-			word.set(domain + "::" + FormsAnalysisConfiguration.ALL_ELEMENTS);
-			context.write(word, numFormElements);
-
-			// Write #forms in entire dataset having each count
-			String tmp = numFormElements.toString();
-			if (_numFormElements > 100) {
-				int base = _numFormElements / 100;
-				tmp = (base * 100 + "-" + (base + 1) * 100);
-			}
-			word.set(FormsAnalysisConfiguration.ALL_ELEMENTS + "::" + tmp);
-			context.write(word, FormsAnalysisConfiguration.ONE);
-
-			// Write #forms in each domain having each count
-			word.set(FormsAnalysisConfiguration.ALL_ELEMENTS + "::" + domain
-					+ "::" + tmp);
-			context.write(word, FormsAnalysisConfiguration.ONE);
-
+			String tmp = null;
 			Enumeration<String> keys = formElementCounts.keys();
 			while (keys.hasMoreElements()) {
 				String tmpKey = keys.nextElement();

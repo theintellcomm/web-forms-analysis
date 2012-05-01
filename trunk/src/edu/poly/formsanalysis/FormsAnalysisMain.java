@@ -7,10 +7,13 @@ import java.io.StringReader;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Element;
 import javax.swing.text.ElementIterator;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+
+import edu.poly.formsanalysis.hadoop.EntriesPerDomain;
+import edu.poly.formsanalysis.hadoop.FormElementsCount;
+import edu.poly.formsanalysis.hadoop.FormMethodTypeCount;
 
 /**
  * @author bhaktavatsalam
@@ -130,32 +133,13 @@ public class FormsAnalysisMain {
 
 			reader.close();
 
-			// TextBoxesCount.main(args);
-			// PasswordBoxesCount.main(args);
-			// TextAreasCount.main(args);
-			//
-			// ListBoxesCount.main(args);
-			// CheckBoxesCount.main(args);
-			// RadioButtonsCount.main(args);
-			//
-			// HiddenElementsCount.main(args);
-			// FileElementsCount.main(args);
-			//
-			// RegularButtonsCount.main(args);
-			// ResetButtonsCount.main(args);
-			// SubmitButtonsCount.main(args);
-			//
-
 			// ElementNamesCount.main(args);
 			// ListBoxOptionsCount.main(args);
 			// CheckBoxesOptionsCount.main(args);
 
-			// // CORRECTED:
-			// FormMethodTypeCount.main(args);
-			//
-			// EntriesPerDomain.main(args);
-			//
-			// FormElementsCount.main(args);
+			 FormMethodTypeCount.main(args);
+			 EntriesPerDomain.main(args);
+			 FormElementsCount.main(args);
 
 		}
 	}
