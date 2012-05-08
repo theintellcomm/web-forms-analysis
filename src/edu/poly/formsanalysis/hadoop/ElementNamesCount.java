@@ -89,9 +89,7 @@ public class ElementNamesCount {
 				sum += val.get();
 			}
 			result.set(sum);
-			if(sum>100) {
-				context.write(key, result);
-			}
+			context.write(key, result);
 		}
 	}
 

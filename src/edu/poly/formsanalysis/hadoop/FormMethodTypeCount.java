@@ -68,6 +68,7 @@ public class FormMethodTypeCount {
 								|| method.equalsIgnoreCase("DELETE"))) {
 							method = "OTHER";
 						}
+						method = method.toUpperCase();
 						
 						word.set(method);
 						context.write(word, FormsAnalysisConfiguration.ONE);

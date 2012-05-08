@@ -66,11 +66,13 @@ public class CheckBoxesOptionsCount {
 					if(type!=null && type.equalsIgnoreCase("CHECKBOX")) {
 						String nm = (String) element.getAttributes().getAttribute(HTML.Attribute.NAME);
 						
-						if (checkboxesOptions.containsKey(nm)) {
-							checkboxesOptions.put(nm, checkboxesOptions.get(nm) + 1);
-						} else {
-							checkboxesOptions.put(nm, 1);
-						}							
+						if(nm!=null && !nm.isEmpty()) {
+							if (checkboxesOptions.containsKey(nm)) {
+								checkboxesOptions.put(nm, checkboxesOptions.get(nm) + 1);
+							} else {
+								checkboxesOptions.put(nm, 1);
+							}
+						}
 					}
 				}
 			}
