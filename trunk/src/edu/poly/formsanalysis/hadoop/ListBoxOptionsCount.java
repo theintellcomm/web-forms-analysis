@@ -22,6 +22,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
+import edu.poly.formsanalysis.hadoop.ElementNamesCount.Map;
+import edu.poly.formsanalysis.hadoop.ElementNamesCount.Reduce;
 
 public class ListBoxOptionsCount {
 	
@@ -33,55 +35,44 @@ public class ListBoxOptionsCount {
 
 		private Text word = new Text();
 		
-		private IntWritable numListBoxOptions = new IntWritable(0);
-		
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			String rec = value.toString();
 			String domain = rec.substring(0, rec.indexOf("::"));
 			String url = rec.substring(rec.indexOf("::") + "::".length(), rec.indexOf("\t"));
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
-
-			HTMLEditorKit kit = new HTMLEditorKit();
-			HTMLDocument doc = (HTMLDocument) kit.createDefaultDocument();
-			Reader reader = new StringReader(formHTML);
 			
-			try {
-				kit.read(reader, doc, 0);
-			} catch (Exception e) {
-				return;
-			} catch(Throwable t) {
-				return;
-			}
-			
-			ElementIterator iterator = new ElementIterator(doc);
-			Element element = null;
-			
-			Integer _selectElementCount = 0;
-			while((element=iterator.next())!=null) {
-				Object tagName = element.getAttributes().getAttribute(StyleConstants.NameAttribute);
-				if(tagName instanceof HTML.Tag && tagName==HTML.Tag.SELECT) {
-					Integer _numOptions = 0;
-					for(int i=0; i<element.getElementCount(); ++i) {
-						Element child = element.getElement(i);
-						Object childTagName = child.getAttributes().getAttribute(StyleConstants.NameAttribute);
-						if(childTagName instanceof HTML.Tag && childTagName==HTML.Tag.OPTION) {
-							++_numOptions;
-						}
+			formHTML = formHTML.toLowerCase();
+			int s = formHTML.indexOf("<select");
+			int e = -1;
+			do {
+				e = formHTML.indexOf("</select>", s);
+				if(e!=-1) {
+					String tmp = formHTML.substring(s, e);
+					int lastIndex = 0;
+					int count = 0;
+					while ((lastIndex = tmp.indexOf("<option", lastIndex)) != -1) {
+						count++;
+						lastIndex += 7;
 					}
-					word.set(url + ":" + _selectElementCount);
-					numListBoxOptions.set(_numOptions);
-					context.write(word, numListBoxOptions);
 					
-					// Write #urls per each count
-					word.set(numListBoxOptions.toString());
-					context.write(word, new IntWritable(1));
+					String k = "" + count;
+					if (count > 100) {
+						int base = count / 100;
+						k = (base * 100 + "-" + (base + 1) * 100);
+					}
+
+					// Write #in entire dataset 
+					word.set(FormsAnalysisConfiguration.DATASET_STRING + "::" + k);
+					context.write(word, FormsAnalysisConfiguration.ONE);
+
+					// Write # in each domain
+					word.set(domain + "::" + k);
+					context.write(word, FormsAnalysisConfiguration.ONE);
 					
-					++_selectElementCount;
+					s = formHTML.indexOf("<select", e);
 				}
-			}
-			
-			reader.close();
+			} while(s!=-1 && e!=-1);
 		}
 	}
 
@@ -103,20 +94,27 @@ public class ListBoxOptionsCount {
 	
 
 	public static void main(String[] args) throws Exception {
+		String input = FormsAnalysisConfiguration.INPUT;
+		String output = FormsAnalysisConfiguration.OUTPUT;
+		if(args.length==2) {
+			input = args[0];
+			output = args[1];
+		}
+		
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		job.setJobName(HADOOP_TASK_NAME);
-		
-		job.setJarByClass(ListBoxOptionsCount.class);
+
+		job.setJarByClass(ElementNamesCount.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
-		
-		FileInputFormat.addInputPath(job, new Path(FormsAnalysisConfiguration.INPUT));
-		FileOutputFormat.setOutputPath(job, new Path(FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
-		
+
+		FileInputFormat.addInputPath(job, new Path(input));
+		FileOutputFormat.setOutputPath(job, new Path(output + "/" + HADOOP_TASK_NAME));
+
 		job.waitForCompletion(true);
 	}
 }
