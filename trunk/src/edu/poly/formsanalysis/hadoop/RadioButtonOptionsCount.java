@@ -66,11 +66,13 @@ public class RadioButtonOptionsCount {
 					if(type!=null && type.equalsIgnoreCase("RADIO")) {
 						String nm = (String) element.getAttributes().getAttribute(HTML.Attribute.NAME);
 						
-						if (radiobuttonOptions.containsKey(nm)) {
-							radiobuttonOptions.put(nm, radiobuttonOptions.get(nm) + 1);
-						} else {
-							radiobuttonOptions.put(nm, 1);
-						}							
+						if(nm!=null && !nm.isEmpty()) {
+							if (radiobuttonOptions.containsKey(nm)) {
+								radiobuttonOptions.put(nm, radiobuttonOptions.get(nm) + 1);
+							} else {
+								radiobuttonOptions.put(nm, 1);
+							}							
+						}
 					}
 				}
 			}

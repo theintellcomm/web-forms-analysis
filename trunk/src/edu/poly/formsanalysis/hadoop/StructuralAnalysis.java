@@ -92,6 +92,10 @@ public class StructuralAnalysis {
 			}
 
 			reader.close();
+			
+			if(structure.endsWith("-")) {
+				structure = structure.substring(0, structure.length() - 1);
+			}
 
 			// In the whole dataset, write the forms with similar structure
 			word.set(structure);
@@ -115,9 +119,7 @@ public class StructuralAnalysis {
 				sum += val.get();
 			}
 			result.set(sum);
-			if(sum>100) {
-				context.write(key, result);
-			}
+			context.write(key, result);
 		}
 	}
 

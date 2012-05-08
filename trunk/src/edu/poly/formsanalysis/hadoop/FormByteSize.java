@@ -35,11 +35,10 @@ public class FormByteSize {
 			String formHTML = rec.substring(rec.indexOf("\t") + "\t".length());
 			
 			int baseBytes = formHTML.length()/1024;
-			
-			word.set((baseBytes*1024) + "-" + ((baseBytes+1)*1024));
+			word.set(baseBytes + "");
 			context.write(word, FormsAnalysisConfiguration.ONE);
 			
-			word.set(domain + "::" + (baseBytes*1024) + "-" + ((baseBytes+1)*1024));
+			word.set(domain + "::" + baseBytes);
 			context.write(word, FormsAnalysisConfiguration.ONE);
 		}
 	}
