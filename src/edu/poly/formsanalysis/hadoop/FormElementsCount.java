@@ -24,6 +24,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import edu.poly.formsanalysis.FormsAnalysisConfiguration;
+import edu.poly.formsanalysis.hadoop.ElementNamesCount.Map;
+import edu.poly.formsanalysis.hadoop.ElementNamesCount.Reduce;
 
 public class FormElementsCount {
 
@@ -69,8 +71,14 @@ public class FormElementsCount {
 						if (name == HTML.Tag.INPUT) {
 							type = (String) attributes
 									.getAttribute(HTML.Attribute.TYPE);
-							if (type == null || type.isEmpty()) {
-								type = "TEXT";
+							
+							if(type==null 
+								|| !(type.equalsIgnoreCase("BUTTON") || type.equalsIgnoreCase("CHECKBOX") 
+									|| type.equalsIgnoreCase("FILE") || type.equalsIgnoreCase("HIDDEN")
+									|| type.equalsIgnoreCase("PASSWORD") || type.equalsIgnoreCase("RADIO")
+									|| type.equalsIgnoreCase("RESET") || type.equalsIgnoreCase("SUBMIT")
+									|| type.equalsIgnoreCase("TEXT") || type.equalsIgnoreCase("IMAGE"))) {
+								type = "OTHER";
 							}
 						} else if (name == HTML.Tag.SELECT) {
 							type = "SELECT";
@@ -157,21 +165,26 @@ public class FormElementsCount {
 	}
 
 	public static void main(String[] args) throws Exception {
+		String input = FormsAnalysisConfiguration.INPUT;
+		String output = FormsAnalysisConfiguration.OUTPUT;
+		if(args.length==2) {
+			input = args[0];
+			output = args[1];
+		}
+		
 		Configuration conf = new Configuration();
 		Job job = new Job(conf, HADOOP_TASK_NAME);
 		job.setJobName(HADOOP_TASK_NAME);
 
-		job.setJarByClass(FormElementsCount.class);
+		job.setJarByClass(ElementNamesCount.class);
 		job.setMapperClass(Map.class);
 		job.setCombinerClass(Reduce.class);
 		job.setReducerClass(Reduce.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 
-		FileInputFormat.addInputPath(job, new Path(
-				FormsAnalysisConfiguration.INPUT));
-		FileOutputFormat.setOutputPath(job, new Path(
-				FormsAnalysisConfiguration.OUTPUT + "/" + HADOOP_TASK_NAME));
+		FileInputFormat.addInputPath(job, new Path(input));
+		FileOutputFormat.setOutputPath(job, new Path(output + "/" + HADOOP_TASK_NAME));
 
 		job.waitForCompletion(true);
 	}
